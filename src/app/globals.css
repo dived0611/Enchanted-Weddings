@@ -1,26 +1,166 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  Design tokens taken from the Figma file (Wedding-Website).
+  Using them as Tailwind theme values lets us write classes like
+  `text-brand`, `bg-page` or `font-cormorant` everywhere.
+*/
+@theme {
+  /* Colors */
+  --color-brand: #c3937c; /* main rose-gold color */
+  --color-brand-light: #ffc7ad; /* end of the button gradient */
+  --color-brand-soft: rgba(233, 222, 217, 0.41); /* pill / badge background */
+  --color-page: #f5f5f5; /* page background */
+  --color-sand: #e8d9c9; /* footer background */
+  --color-ink: #343434;
+  --color-muted: #6b6b6b;
+  --color-muted-2: #787878;
+  --color-success: #0f5132;
+
+  /* Fonts (the CSS variables are created by next/font in layout.tsx) */
+  --font-montserrat: var(--nf-montserrat), sans-serif;
+  --font-montserrat-alt: var(--nf-montserrat-alt), sans-serif;
+  --font-cormorant: var(--nf-cormorant), serif;
+  --font-garamond: var(--nf-cormorant-garamond), serif;
+  --font-jakarta: var(--nf-jakarta), sans-serif;
+  --font-gruppo: var(--nf-gruppo), sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-page);
+  color: #000;
+  font-family: var(--font-montserrat);
+}
+
+/* Hide the scrollbar of horizontal carousels but keep them scrollable */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Two-handle range slider (budget filter on /offres): two stacked
+   <input type="range">, only their round handles catch the mouse. */
+.dual-range input[type="range"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+.dual-range input[type="range"]::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  height: 22px;
+}
+.dual-range input[type="range"]::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+.dual-range input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid var(--color-brand);
+  box-shadow: 0 0 0 5px rgba(195, 147, 124, 0.25);
+  cursor: grab;
+}
+.dual-range input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid var(--color-brand);
+  box-shadow: 0 0 0 5px rgba(195, 147, 124, 0.25);
+  cursor: grab;
+}
+.dual-range input[type="range"]:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* Small bounce for the "scroll down" mouse icon in the hero */
+@keyframes mouse-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+.animate-mouse-bounce {
+  animation: mouse-bounce 1.6s ease-in-out infinite;
+}
+
+/* Hero pieces start hidden and are faded in by GSAP (HomeMotion.tsx),
+   so they don't flash before the intro animation starts. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-hero-hide] {
+    visibility: hidden;
+  }
+}
+
+/* Intro loader (IntroLoader.tsx): hidden if already seen this session */
+html.intro-seen [data-intro] {
+  display: none;
+}
+/* Starting state of the intro pieces, so nothing flashes before GSAP loads */
+[data-intro-logo] {
+  clip-path: inset(0% 100% 0% 0%);
+}
+[data-intro-line] {
+  transform: scaleX(0);
+}
+[data-intro-tagline] {
+  visibility: hidden;
+}
+
+/* Header links: underline that draws from the left on hover */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.nav-link:hover::after,
+.nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-intro] {
+    display: none;
+  }
+  .animate-mouse-bounce {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }
